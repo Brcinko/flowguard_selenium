@@ -98,7 +98,7 @@ try:
 
     # Optional: Wait to visually confirm changes in the browser
     import time
-    time.sleep(10)
+    time.sleep(300)
 
     
     # creation_id = driver.find_element(By.ID, "2fa")
