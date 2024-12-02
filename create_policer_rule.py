@@ -4,12 +4,18 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 import time
+import credentials
 
 # Replace these with your specific details
 # LOGIN_URL = "https://example.com/login"
 # USERNAME = "your_username"
 # PASSWORD = "your_password"
 # TARGET_PAGE_URL = "https://example.com/target/url"
+
+LOGIN_URL = credentials.LOGIN_URL
+USERNAME = credentials.USERNAME
+PASSWORD = credentials.PASSWORD
+TARGET_PAGE_URL = credentials.TARGET_PAGE_URL
 
 # Set up the WebDriver
 driver = webdriver.Chrome()
@@ -23,7 +29,7 @@ try:
     WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, "password"))).send_keys(PASSWORD + Keys.RETURN)
 
     # Wait for the 2FA page to load
-    WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, "2fa")))
+    WebDriverWait(driver, 15).until(EC.presence_of_element_located((By.ID, "2fa")))
 
     # Prompt the user to input the SMS 2FA code manually
     print("An SMS with a 2FA code has been sent to your registered phone number.")
