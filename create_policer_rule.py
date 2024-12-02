@@ -21,6 +21,36 @@ TARGET_PAGE_URL = credentials.TARGET_PAGE_URL
 # Set up the WebDriver
 driver = webdriver.Chrome()
 
+
+# Define the file path
+file_path = "subnets.txt"
+
+# Read the file and load subnets into a list
+try:
+    with open(file_path, "r") as file:
+        subnets = file.read().splitlines()  # Split by newline
+        print("Subnets loaded:", subnets)
+except FileNotFoundError:
+    print(f"Error: The file {file_path} was not found.")
+except Exception as e:
+    print(f"An error occurred: {e}")
+
+# HTML template for a new value-row div
+value_row_template = """
+<div class="row col-12 no-gutters value-row">
+    <div class="form-group col-1">
+        <button type="button" class="btn btn-outline-danger remove-value" 
+            data-toggle="tooltip" data-placement="top" 
+            title="" data-original-title="Removes this value">-</button>
+    </div>
+    <div class="form-group col-11" id="conditions_0_values_{index}_field">
+        <input type="text" id="conditions_0_values_{index}" 
+            name="conditions[0].values[{index}]" value="{value}" class="form-control">
+    </div>
+</div>
+"""
+
+
 try:
     # Navigate to the login page
     driver.get(LOGIN_URL)
@@ -41,15 +71,41 @@ try:
 
     # Navigate to the target page after logging in
     # Wait for the <h1> element with text "Dashboard" to appear
-    WebDriverWait(driver, 5).until(EC.presence_of_element_located((By.XPATH, "//h1[text()='Dashboard']")))
-    WebDriverWait(driver, 10).until(EC.url_contains(LOGIN_URL))
+    # WebDriverWait(driver, 2).until(EC.presence_of_element_located((By.XPATH, "//h1[text()='Dashboard']")))
+    print ("WELCOME SCREEN")
+    # WebDriverWait(driver, 10).until(EC.url_contains(LOGIN_URL))
     driver.get(TARGET_PAGE_URL)
     
-    creation_id = driver.find_element(By.ID, "2fa")
+
+    # Locate the parent container for the value rows
+    parent_container = driver.find_element(By.CSS_SELECTOR, "div.row.values")
+
+    # Log the existing content for verification
+    print("Before injection:", driver.execute_script("return arguments[0].innerHTML;", parent_container))
+
+    # Inject new divs for each subnet
+    for i, subnet in enumerate(subnets):
+        # Generate the HTML for the new row
+        new_row_html = value_row_template.format(index=i, value=subnet)
+        
+        # Inject the new HTML into the parent container
+        driver.execute_script("""
+            arguments[0].insertAdjacentHTML('beforeend', arguments[1]);
+        """, parent_container, new_row_html)
+
+    # Log the modified content for verification
+    print("After injection:", driver.execute_script("return arguments[0].innerHTML;", parent_container))
+
+    # Optional: Wait to visually confirm changes in the browser
+    import time
+    time.sleep(10)
+
+    
+    # creation_id = driver.find_element(By.ID, "2fa")
 
     # Locate the submit button
-    #submit_button = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR, "form button[type='submit']")))
-    print("ID:", creation_id)
+    submit_button = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR, "form button[type='submit']")))
+    print("ID:", submit_button)
 
 except Exception as e:
     print("An error occurred:", e)
