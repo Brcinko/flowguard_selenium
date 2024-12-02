@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
@@ -39,12 +40,16 @@ try:
     driver.find_element(By.ID, "2fa").send_keys(two_factor_code + Keys.RETURN)
 
     # Navigate to the target page after logging in
+    # Wait for the <h1> element with text "Dashboard" to appear
+    WebDriverWait(driver, 5).until(EC.presence_of_element_located((By.XPATH, "//h1[text()='Dashboard']")))
     WebDriverWait(driver, 10).until(EC.url_contains(LOGIN_URL))
     driver.get(TARGET_PAGE_URL)
+    
+    creation_id = driver.find_element(By.ID, "2fa")
 
     # Locate the submit button
-    submit_button = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR, "form button[type='submit']")))
-    print("Submit button located:", submit_button)
+    #submit_button = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR, "form button[type='submit']")))
+    print("ID:", creation_id)
 
 except Exception as e:
     print("An error occurred:", e)
