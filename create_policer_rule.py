@@ -4,8 +4,10 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+
 import time
 import credentials
+import argparse
 
 # Replace these with your specific details
 # LOGIN_URL = "https://example.com/login"
@@ -50,6 +52,37 @@ value_row_template = """
 </div>
 """
 
+def define_parser():
+    """
+    Define the argument parser for the script.
+    """
+    parser = argparse.ArgumentParser(description="Add destination IPs/subnets and specify a rule type.")
+    
+    # Add arguments with long and short options
+    parser.add_argument(
+        "-d", "--destination", 
+        type=str, 
+        nargs="+", 
+        required=True, 
+        help="List of destination IPs/subnets to be added (e.g., 192.168.1.0/24 10.0.0.0/8)"
+    )
+    parser.add_argument(
+        "-r", "--rule-type", 
+        type=str, 
+        required=True, 
+        choices=["policer", "accept"], 
+        help="Specify the rule type: 'policer' or 'accept'."
+    )
+
+    # Parse the arguments
+    args = parser.parse_args()
+
+    # Validate the rule type early
+    if args.rule_type.lower() not in ["policer", "accept"]:
+        print("Error: Invalid rule type! Only 'policer' or 'accept' are allowed.", file=sys.stderr)
+        sys.exit(1)
+
+    return args
 
 try:
     # Navigate to the login page
@@ -113,3 +146,10 @@ except Exception as e:
 finally:
     time.sleep(5)  # Optional: Wait before closing to observe results
     driver.quit()
+
+if __name__ == "__main__":
+    # Parse command-line arguments
+    args = define_parser()
+
+    # Call the function with parsed arguments
+    # edit_firewall_rules(args.destination, args.rule_type)
